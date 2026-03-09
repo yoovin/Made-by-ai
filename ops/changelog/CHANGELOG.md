@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-03-10 11:00
+- 요약: 릴리즈 로그 서비스 페이지에 실제 CHANGELOG 내용 연결
+- 변경 이유: /services/release-log 카드가 있지만 페이지에 아무 내용도 없는 UX 문제 해결
+- 사용자 영향: 허브에서 "릴리즈 로그" 카드 클릭 시 실제 변경 이력 확인 가능
+- 기술 변경:
+  - app/services/release-log/page.tsx 생성 (전용 페이지, [slug] 라우트 오버라이드)
+  - fs.readFileSync로 ops/changelog/CHANGELOG.md 서버사이드 읽기
+  - ## 기준 섹션 파싱, 들여쓰기 구분 렌더링
+- 검증:
+  - curl http://localhost:80/services/release-log → 200 OK
+  - CHANGELOG 내용(날짜, 항목) HTML에 포함 확인
+  - TypeScript 오류 없음
+- 리스크 / 제한사항:
+  - CHANGELOG.md 파일 삭제 시 에러 처리 내장
+  - markdown 렌더러 없이 직접 파싱 — 복잡한 포맷 미지원
+
 ## 2026-03-10 02:00
 - 요약: 80번 포트 상시 서비스 배포 및 hot reload 적용
 - 변경 이유: Next.js 앱을 80번 포트에서 항시 서비스하고 코드 수정사항이 실시간 반영되도록 하기 위해
