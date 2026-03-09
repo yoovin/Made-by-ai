@@ -1,0 +1,17 @@
+[Unit]
+Description=Made by AI OpenCode Headless Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROJECT_ROOT__
+Environment=HOME=%h
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin
+EnvironmentFile=__PROJECT_ROOT__/.env.local
+ExecStart=/usr/bin/env opencode serve --hostname 127.0.0.1 --port 4096
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

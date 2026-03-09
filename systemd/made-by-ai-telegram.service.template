@@ -1,0 +1,14 @@
+[Unit]
+Description=Made by AI Telegram Approval Bot
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${ROOT_DIR}
+ExecStart=/usr/bin/env bash -lc 'cd ${ROOT_DIR} && python3 scripts/approval_bot.py'
+Restart=always
+RestartSec=5
+Environment=HOME=%h
+
+[Install]
+WantedBy=default.target

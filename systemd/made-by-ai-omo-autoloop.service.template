@@ -1,0 +1,14 @@
+[Unit]
+Description=Made by AI OMO Auto Loop
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${ROOT_DIR}
+ExecStart=/usr/bin/env bash ${ROOT_DIR}/scripts/omo-autoloop.sh
+Restart=always
+RestartSec=10
+Environment=HOME=%h
+
+[Install]
+WantedBy=default.target

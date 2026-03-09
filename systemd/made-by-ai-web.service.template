@@ -1,0 +1,14 @@
+[Unit]
+Description=Made by AI Web App
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${ROOT_DIR}
+ExecStart=/usr/bin/env bash -lc 'cd ${ROOT_DIR} && APP_PORT=${APP_PORT:-3000} pnpm start'
+Restart=always
+RestartSec=10
+Environment=HOME=%h
+
+[Install]
+WantedBy=default.target
