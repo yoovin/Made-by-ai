@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 2026-03-10 02:00
+- 요약: 80번 포트 상시 서비스 배포 및 hot reload 적용
+- 변경 이유: Next.js 앱을 80번 포트에서 항시 서비스하고 코드 수정사항이 실시간 반영되도록 하기 위해
+- 사용자 영향: http://localhost:80 (및 서버 IP:80)으로 허브 앱 접근 가능, 코드 저장 즉시 반영
+- 기술 변경:
+  - PM2로 `next dev --port 4000` 프로세스 상시 실행 (크래시 시 자동 재시작)
+  - nginx `/etc/nginx/sites-available/made-by-ai` 추가: 80→4000 리버스 프록시
+  - `ecosystem.config.js` 추가: PM2 실행 구성 명세
+  - PM2 startup 등록 (pm2-abc.service): 재부팅 시 자동 복원
+  - PM2 dump 저장: `/config/.pm2/dump.pm2`
+- 검증:
+  - `curl http://localhost:80/` → 200 OK (Made by AI 허브 HTML)
+  - `curl http://localhost:80/services/hub-intro` → 200 OK
+  - `curl http://localhost:80/api/health` → 200 OK
+  - PM2 status: online, 크래시 0회
+- 리스크 / 제한사항:
+  - dev 모드 실행이므로 production 대비 성능은 낮지만 hot reload 가능
+  - 컨테이너 환경에서 pm2 startup이 systemd 방식으로 등록됨 (재시작 시 pm2 resurrect 또는 ecosystem.config.js 재실행 필요할 수 있음)
+
 ## 2026-03-10 10:00
 - 요약: 서비스 상세 페이지 정적 생성(SSG) 적용
 - 변경 이유: production 빌드 시 모든 서비스 페이지를 미리 렌더링하여 성능과 SEO를 개선하기 위해
