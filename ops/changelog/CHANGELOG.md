@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-03-10 10:00
+- 요약: 서비스 상세 페이지 정적 생성(SSG) 적용
+- 변경 이유: production 빌드 시 모든 서비스 페이지를 미리 렌더링하여 성능과 SEO를 개선하기 위해
+- 사용자 영향: 서비스 상세 페이지 로딩 속도 향상
+- 기술 변경:
+  - `app/services/[slug]/page.tsx`에 `generateStaticParams` 함수 추가
+  - `serviceRegistry`의 모든 slug를 기반으로 정적 경로 생성
+- 검증:
+  - `pnpm build` 실행 결과 `/services/[slug]` 경로가 SSG(●)로 생성됨을 확인
+  - `hub-intro`, `release-log`, `experiments` 경로가 정상적으로 pre-render됨
+- 리스크 / 제한사항:
+  - 새로운 서비스 추가 시 빌드 타임에 반영됨 (Dynamic Params 설정에 따라 런타임 동작 결정)
+
 ## 2026-03-09 15:00
 - 요약: 허브형 스타터와 로컬 자동개발 운영 구조 생성
 - 변경 이유: Made by AI 프로젝트를 로컬 Ubuntu 자율 운영형으로 시작하기 위해

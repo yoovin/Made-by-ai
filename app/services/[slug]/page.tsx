@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getServiceBySlug } from "@/lib/service-registry";
+import { getServiceBySlug, serviceRegistry } from "@/lib/service-registry";
+
+export function generateStaticParams() {
+  return serviceRegistry.map((service) => ({
+    slug: service.slug,
+  }));
+}
 
 type Props = {
   params: Promise<{ slug: string }>;
