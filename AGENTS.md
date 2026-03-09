@@ -117,7 +117,8 @@
 ## 11. Git 규칙
 
 - GitHub는 버전 관리용이다.
-- 안전한 배포가 끝났고 changelog가 업데이트되면 commit / push를 수행한다.
+- **매 git commit 이후에는 반드시 즉시 push한다.** commit과 push는 항상 쌍으로 수행한다.
+- 안전한 배포가 끝났고 changelog가 업데이트되면 commit 후 push를 수행한다.
 - 의미 없는 거대 커밋보다 작은 커밋을 선호한다.
 - 커밋 메시지는 구체적으로 작성한다.
 
