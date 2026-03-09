@@ -86,6 +86,13 @@ main {
   line-height: 1.6;
 }
 
+.card-meta {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
 .badge-row {
   display: flex;
   gap: 8px;

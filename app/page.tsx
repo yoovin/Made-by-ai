@@ -50,6 +50,7 @@ export default function HomePage() {
               </div>
               <h3>{service.title}</h3>
               <p>{service.shortDescription}</p>
+              <span className="card-meta">업데이트 {service.updatedAt}</span>
             </Link>
           ))}
         </div>
