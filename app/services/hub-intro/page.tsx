@@ -23,8 +23,8 @@ export default function HubIntroPage() {
       <section className="panel">
         <h2 className="section-title">플랫폼 소개</h2>
         <p className="section-desc">
-          Made by AI는 하나의 허브 화면 안으로 서비스가 계속 추가되는 구조입니다. 
-          새로운 기능은 별도의 사이트가 아닌 "허브 안에 추가되는 새 서비스"로 취급되며, 
+          Made by AI는 하나의 허브 화면 안으로 서비스가 계속 추가되는 구조입니다.
+          새로운 기능은 별도의 사이트가 아닌 &quot;허브 안에 추가되는 새 서비스&quot;로 취급되며,
           AI에 의해 지속적으로 확장되고 진화합니다.
         </p>
       </section>

@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { getCategories, getVisibleServices } from "@/lib/service-registry";
+import { getHomeQuickStartBundles, getRecentUpdatedServices } from "@/lib/home-discovery";
 
 export default function HomePage() {
   const services = getVisibleServices();
   const categories = getCategories();
+  const quickStartBundles = getHomeQuickStartBundles(services);
+  const recentUpdates = getRecentUpdatedServices(services);
 
   return (
     <main>
@@ -32,6 +35,67 @@ export default function HomePage() {
             <strong>1</strong>
             <span>영구 엔트리 허브</span>
           </div>
+        </div>
+      </section>
+
+      <section className="panel home-guided-access">
+        <div className="home-guided-header">
+          <div>
+            <h2 className="section-title home-guided-title">빠르게 시작하기</h2>
+            <p className="section-desc">
+              처음 들어왔을 때 자주 찾는 경로를 목적별로 바로 따라갈 수 있게 정리했습니다.
+            </p>
+          </div>
+          <Link className="back-link" href="/services/search">
+            허브 검색으로 전체 둘러보기
+          </Link>
+        </div>
+
+        <div className="home-quick-start-grid">
+          {quickStartBundles.map((bundle) => (
+            <section className="home-quick-start-card" key={bundle.key}>
+              <div className="badge-row">
+                <span className="badge active">빠른 시작</span>
+              </div>
+              <h3>{bundle.title}</h3>
+              <p>{bundle.description}</p>
+              <div className="home-quick-start-links">
+                {bundle.services.map((service) => (
+                  <Link className="hint-chip" key={service.key} href={service.route}>
+                    {service.title}
+                  </Link>
+                ))}
+              </div>
+              <Link className="back-link home-quick-start-query" href={`/services/search?q=${encodeURIComponent(bundle.query)}`}>
+                이 묶음으로 다시 찾기
+              </Link>
+            </section>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel home-recent-updates">
+        <div className="home-guided-header">
+          <div>
+            <h2 className="section-title home-guided-title">최근 업데이트</h2>
+            <p className="section-desc">
+              최근에 정리되거나 추가된 서비스부터 빠르게 확인할 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="home-recent-grid">
+          {recentUpdates.map((service) => (
+            <Link className="card" key={service.key} href={service.route}>
+              <div className="badge-row">
+                <span className={`badge ${service.status}`}>{service.status}</span>
+                <span className="badge">{service.category}</span>
+              </div>
+              <h3>{service.title}</h3>
+              <p>{service.shortDescription}</p>
+              <span className="card-meta">업데이트 {service.updatedAt}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
