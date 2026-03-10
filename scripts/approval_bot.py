@@ -182,6 +182,49 @@ def move_approval(approval_id: str, target_dir: Path, target_status: str) -> str
     return f"{approval_id} -> {target_status} 처리 완료"
 
 
+def update_pending_metadata(approval_id: str, status: str, note: str, extra: dict[str, Any] | None = None) -> str:
+    source = find_pending_by_id(approval_id)
+    if not source:
+        return f"대기 중인 승인 ID를 찾지 못했습니다: {approval_id}"
+
+    data = load_json(source)
+    data["status"] = status
+    data["handledAt"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    data["operatorNote"] = note
+    if extra:
+        data.update(extra)
+    save_json(source, data)
+    return f"{approval_id} -> {status} 반영 완료"
+
+
+def extract_approval_id(text: str) -> str | None:
+    match = re.search(r"\b([a-zA-Z0-9][a-zA-Z0-9._-]{2,})\b", text)
+    if not match:
+        return None
+    candidate = match.group(1)
+    reserved = {
+        "approve", "resume", "reject", "discard", "status", "help",
+        "승인", "재개", "폐기", "거절", "상태", "도움말",
+    }
+    return None if candidate.lower() in reserved or candidate in reserved else candidate
+
+
+def infer_pending_approval_id(message: dict[str, Any], explicit_id: str | None) -> str | None:
+    if explicit_id:
+        return explicit_id
+
+    reply_text = ((message.get("reply_to_message") or {}).get("text") or "")
+    reply_match = re.search(r"ID:\s*([^\s]+)", reply_text)
+    if reply_match:
+        return reply_match.group(1).strip()
+
+    pending_files = list_pending_files()
+    if len(pending_files) == 1:
+        return pending_files[0].stem
+
+    return None
+
+
 def parse_text_command(text: str) -> tuple[str | None, str | None]:
     text = text.strip()
     patterns = [
@@ -194,6 +237,20 @@ def parse_text_command(text: str) -> tuple[str | None, str | None]:
         match = re.match(pattern, text, re.IGNORECASE)
         if match:
             return kind, (match.group(2).strip() if match.lastindex and match.lastindex >= 2 else None)
+
+    normalized = re.sub(r"\s+", " ", text).strip().lower()
+    natural_patterns = [
+        (r"^(해|진행해|계속)$", "approve"),
+        (r"^(그건 하지마|그건 폐기|위험하면 하지마)$", "reject"),
+        (r"^(나중에|일단 보류|보류)$", "hold"),
+        (r"^(그거 말고 다른거 먼저)$", "prioritize_other"),
+        (r"^(작게만 해)$", "shrink"),
+        (r"^(오늘은 배포하지마|배포하지마)$", "no_deploy"),
+    ]
+    for pattern, kind in natural_patterns:
+        if re.match(pattern, normalized, re.IGNORECASE):
+            return kind, extract_approval_id(text)
+
     return None, None
 
 
@@ -221,6 +278,37 @@ def handle_action(kind: str, approval_id: str | None) -> str:
         if not approval_id:
             return "폐기할 ID를 함께 보내주세요."
         return move_approval(approval_id, REJECTED_DIR, "rejected")
+    if kind == "hold":
+        if not approval_id:
+            return "보류할 승인 ID를 찾지 못했습니다. 승인 메시지에 답장하거나 ID를 함께 보내주세요."
+        return update_pending_metadata(approval_id, "on_hold", "사용자 답변을 보류로 해석함")
+    if kind == "prioritize_other":
+        if not approval_id:
+            return "우선순위를 미룰 승인 ID를 찾지 못했습니다. 승인 메시지에 답장하거나 ID를 함께 보내주세요."
+        return update_pending_metadata(
+            approval_id,
+            "on_hold",
+            "사용자 요청에 따라 다른 작업을 먼저 진행",
+            {"priorityOverride": "other_first"},
+        )
+    if kind == "shrink":
+        if not approval_id:
+            return "축소할 승인 ID를 찾지 못했습니다. 승인 메시지에 답장하거나 ID를 함께 보내주세요."
+        return update_pending_metadata(
+            approval_id,
+            "scope_reduction_requested",
+            "사용자 요청에 따라 범위 축소 필요",
+            {"scopeAdjustment": "shrink"},
+        )
+    if kind == "no_deploy":
+        if not approval_id:
+            return "배포 금지로 표시할 승인 ID를 찾지 못했습니다. 승인 메시지에 답장하거나 ID를 함께 보내주세요."
+        return update_pending_metadata(
+            approval_id,
+            "deployment_blocked",
+            "사용자 요청에 따라 현재 배포 금지",
+            {"deployBlocked": True},
+        )
     if kind == "status":
         return status_text()
     if kind == "help":
@@ -230,7 +318,13 @@ def handle_action(kind: str, approval_id: str | None) -> str:
             "- 승인 <id>\n"
             "- 재개 <id>\n"
             "- 폐기 <id>\n"
-            "- 거절 <id>"
+            "- 거절 <id>\n"
+            "- 해 / 진행해 / 계속\n"
+            "- 나중에 / 일단 보류\n"
+            "- 그건 하지마 / 그건 폐기\n"
+            "- 그거 말고 다른거 먼저\n"
+            "- 작게만 해\n"
+            "- 오늘은 배포하지마"
         )
     return "알 수 없는 명령입니다."
 
@@ -272,6 +366,7 @@ def handle_update(update: dict[str, Any]) -> None:
     kind, approval_id = parse_text_command(text)
     if not kind:
         return
+    approval_id = infer_pending_approval_id(message, approval_id)
     result = handle_action(kind, approval_id)
     send_message(result)
     log(result)

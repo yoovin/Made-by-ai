@@ -8,6 +8,10 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 
+def normalize_text(text: str) -> str:
+    return text.replace("\\n", "\n")
+
+
 def send_message(text: str) -> int:
     if not BOT_TOKEN or not CHAT_ID:
         print("Telegram env not configured; skipping message.", file=sys.stderr)
@@ -15,7 +19,7 @@ def send_message(text: str) -> int:
 
     payload = {
         "chat_id": CHAT_ID,
-        "text": text,
+        "text": normalize_text(text),
         "disable_web_page_preview": True,
     }
     req = urllib.request.Request(

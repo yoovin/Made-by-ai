@@ -18,7 +18,7 @@ export PRODUCTION_URL="${PRODUCTION_URL:-http://127.0.0.1}"
 export GIT_REMOTE="${GIT_REMOTE:-origin}"
 export MAIN_BRANCH="${MAIN_BRANCH:-main}"
 
-mkdir -p   "$PROJECT_ROOT/ops/runtime"   "$PROJECT_ROOT/ops/logs"   "$PROJECT_ROOT/ops/approvals/pending"   "$PROJECT_ROOT/ops/approvals/approved"   "$PROJECT_ROOT/ops/approvals/discarded"
+mkdir -p   "$PROJECT_ROOT/ops/runtime"   "$PROJECT_ROOT/ops/logs"   "$PROJECT_ROOT/ops/approvals/pending"   "$PROJECT_ROOT/ops/approvals/approved"   "$PROJECT_ROOT/ops/approvals/rejected"
 
 timestamp_kst() {
   TZ=Asia/Seoul date +"%Y-%m-%d %H:%M:%S %Z"

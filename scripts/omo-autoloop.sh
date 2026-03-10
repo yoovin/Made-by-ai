@@ -5,7 +5,7 @@ cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/common.sh"
 
 ensure_env
-mkdir -p "$ROOT_DIR/ops/logs" "$ROOT_DIR/ops/runtime" "$ROOT_DIR/ops/approvals/pending" "$ROOT_DIR/ops/approvals/approved" "$ROOT_DIR/ops/approvals/discarded"
+mkdir -p "$ROOT_DIR/ops/logs" "$ROOT_DIR/ops/runtime" "$ROOT_DIR/ops/approvals/pending" "$ROOT_DIR/ops/approvals/approved" "$ROOT_DIR/ops/approvals/rejected"
 
 INTERVAL="${AUTOLOOP_INTERVAL_SECONDS:-1800}"
 LOCKFILE="$ROOT_DIR/ops/runtime/autoloop.lock"
