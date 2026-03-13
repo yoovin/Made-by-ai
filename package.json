@@ -9,15 +9,22 @@
     "start": "next start --hostname 127.0.0.1 --port 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm lint && pnpm typecheck && pnpm build"
+    "check": "pnpm lint && pnpm typecheck && pnpm build",
+    "test:pem-block-tools": "rm -rf .tmp/pem-block-tools-test && tsc --pretty false --target ES2022 --module commonjs --moduleResolution node --lib es2022,dom --skipLibCheck --rootDir src/lib --outDir .tmp/pem-block-tools-test src/lib/pem-block-tools.ts src/lib/pem-block-tools.test.ts && node .tmp/pem-block-tools-test/pem-block-tools.test.js",
+    "test:private-key-tools": "rm -rf .tmp/private-key-tools-test && tsc --pretty false --target ES2022 --module commonjs --moduleResolution node --lib es2022,dom --skipLibCheck --rootDir src/lib --outDir .tmp/private-key-tools-test src/lib/private-key-tools.ts src/lib/private-key-tools.test.ts && node .tmp/private-key-tools-test/private-key-tools.test.js"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@peculiar/x509": "^1.14.3",
     "next": "latest",
+    "qrcode": "^1.5.4",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",

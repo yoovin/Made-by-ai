@@ -25,7 +25,7 @@ export default function Sha256GeneratorPage() {
         <ul className="list">
           <li>브라우저 안에서만 처리되며 입력 값을 저장하지 않습니다.</li>
           <li>이번 단계에서는 단일 SHA-256 텍스트 해시에 집중합니다.</li>
-          <li>여러 해시 알고리즘, 파일 해시, 복사 버튼 같은 확장은 이후 후보로 남깁니다.</li>
+          <li>해시 생성이 성공하면 결과를 바로 복사해 다음 작업으로 이어갈 수 있습니다.</li>
         </ul>
       </section>
 

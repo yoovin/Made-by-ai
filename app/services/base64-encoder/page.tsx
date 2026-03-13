@@ -25,6 +25,7 @@ export default function Base64EncoderPage() {
         <ul className="list">
           <li>브라우저 안에서만 처리되며 입력 값을 저장하지 않습니다.</li>
           <li>이번 단계에서는 UTF-8 안전 인코딩/디코딩과 오류 안내에 집중합니다.</li>
+          <li>인코딩 또는 디코딩이 성공하면 결과를 바로 복사해 다음 작업으로 이어갈 수 있습니다.</li>
           <li>파일 업로드나 배치 변환 같은 확장은 이후 후보로 남깁니다.</li>
         </ul>
       </section>

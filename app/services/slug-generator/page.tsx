@@ -25,7 +25,7 @@ export default function SlugGeneratorPage() {
         <ul className="list">
           <li>브라우저 안에서만 처리되며 입력 값을 저장하지 않습니다.</li>
           <li>이번 단계에서는 ASCII 기반 slug 생성에 집중합니다.</li>
-          <li>언어별 완전한 음역 규칙이나 복사 버튼 같은 확장은 이후 후보로 남깁니다.</li>
+          <li>생성이 성공하면 결과를 바로 복사해 다음 작업으로 이어갈 수 있습니다.</li>
         </ul>
       </section>
 

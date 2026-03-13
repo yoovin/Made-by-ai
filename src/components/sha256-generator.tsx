@@ -5,17 +5,40 @@ import { HashResult, hashTextWithSha256 } from "@/lib/hash-tools";
 
 const VALID_EXAMPLE = "abc";
 
+type CopyStatus = "idle" | "copied" | "error";
+
 export function Sha256Generator() {
   const [input, setInput] = useState(VALID_EXAMPLE);
   const [result, setResult] = useState<HashResult | null>(null);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
 
   async function handleHash() {
+    setCopyStatus("idle");
     setResult(await hashTextWithSha256(input));
   }
 
   function handleClear() {
     setInput("");
     setResult(null);
+    setCopyStatus("idle");
+  }
+
+  async function handleCopy() {
+    if (!result?.ok) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus("error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(result.digest);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
   }
 
   return (
@@ -60,6 +83,17 @@ export function Sha256Generator() {
                   <span>바이트 수</span>
                 </div>
               </div>
+              <div className="json-formatter-actions">
+                <button className="bookmark-submit" type="button" onClick={handleCopy}>
+                  결과 복사
+                </button>
+              </div>
+              {copyStatus === "copied" ? (
+                <p className="section-desc">SHA-256 결과를 클립보드에 복사했습니다.</p>
+              ) : null}
+              {copyStatus === "error" ? (
+                <p className="section-desc">이 브라우저에서는 결과를 복사할 수 없습니다.</p>
+              ) : null}
               <pre className="json-formatter-output">{result.digest}</pre>
             </>
           ) : (

@@ -5,9 +5,63 @@ import { analyzeLineList, LineListResult } from "@/lib/line-list-tools";
 
 const FIXTURE = "banana\napple\nbanana\n\ncarrot\napple";
 
+type CopyMode = "ordered" | "sorted";
+type CopyStatus = "idle" | "copied" | "error";
+
 export function LineListCleaner() {
   const [input, setInput] = useState(FIXTURE);
   const [result, setResult] = useState<LineListResult | null>(null);
+  const [copyStatus, setCopyStatus] = useState<Record<CopyMode, CopyStatus>>({
+    ordered: "idle",
+    sorted: "idle",
+  });
+
+  function resetCopyStatus() {
+    setCopyStatus({
+      ordered: "idle",
+      sorted: "idle",
+    });
+  }
+
+  function handleAnalyze() {
+    resetCopyStatus();
+    setResult(analyzeLineList(input));
+  }
+
+  function handleClear() {
+    setInput("");
+    setResult(null);
+    resetCopyStatus();
+  }
+
+  async function handleCopy(mode: CopyMode) {
+    if (!result?.ok) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus((current) => ({
+        ...current,
+        [mode]: "error",
+      }));
+      return;
+    }
+
+    const value = mode === "ordered" ? result.orderedUnique : result.sortedUnique;
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyStatus((current) => ({
+        ...current,
+        [mode]: "copied",
+      }));
+    } catch {
+      setCopyStatus((current) => ({
+        ...current,
+        [mode]: "error",
+      }));
+    }
+  }
 
   return (
     <section className="panel">
@@ -20,26 +74,18 @@ export function LineListCleaner() {
       />
 
       <div className="json-formatter-actions">
-        <button className="bookmark-submit" type="button" onClick={() => setResult(analyzeLineList(input))}>
+        <button className="bookmark-submit" type="button" onClick={handleAnalyze}>
           정리
         </button>
-        <button
-          className="bookmark-remove"
-          type="button"
-          onClick={() => {
-            setInput("");
-            setResult(null);
-          }}
-        >
+        <button className="bookmark-remove" type="button" onClick={handleClear}>
           지우기
         </button>
       </div>
 
       <div className="json-formatter-examples">
         <p className="section-desc">
-          검증 예시: <code>{FIXTURE.replace(/\n/g, "\\n")}</code>
+          fixture 예시: <code>{FIXTURE.replace(/\n/g, "\\n")}</code>
         </p>
-        <p className="section-desc">각 줄은 앞뒤 공백을 제거하고, 빈 줄은 무시한 뒤 비교합니다.</p>
       </div>
 
       {result ? (
@@ -52,13 +98,36 @@ export function LineListCleaner() {
                 <div className="kpi"><strong>{result.uniqueLines}</strong><span>고유 줄 수</span></div>
                 <div className="kpi"><strong>{result.duplicatesRemoved}</strong><span>제거된 중복</span></div>
               </div>
+
               <div className="line-list-output-grid">
                 <div className="line-list-output-card">
                   <h3>입력 순서 유지</h3>
+                  <div className="json-formatter-actions">
+                    <button className="bookmark-submit" type="button" onClick={() => handleCopy("ordered")}>
+                      입력 순서 유지 복사
+                    </button>
+                  </div>
+                  {copyStatus.ordered === "copied" ? (
+                    <p className="section-desc">입력 순서 유지 결과를 클립보드에 복사했습니다.</p>
+                  ) : null}
+                  {copyStatus.ordered === "error" ? (
+                    <p className="section-desc">이 브라우저에서는 입력 순서 유지 결과를 복사할 수 없습니다.</p>
+                  ) : null}
                   <pre className="json-formatter-output">{result.orderedUnique}</pre>
                 </div>
                 <div className="line-list-output-card">
                   <h3>정렬된 결과</h3>
+                  <div className="json-formatter-actions">
+                    <button className="bookmark-submit" type="button" onClick={() => handleCopy("sorted")}>
+                      정렬 결과 복사
+                    </button>
+                  </div>
+                  {copyStatus.sorted === "copied" ? (
+                    <p className="section-desc">정렬된 결과를 클립보드에 복사했습니다.</p>
+                  ) : null}
+                  {copyStatus.sorted === "error" ? (
+                    <p className="section-desc">이 브라우저에서는 정렬된 결과를 복사할 수 없습니다.</p>
+                  ) : null}
                   <pre className="json-formatter-output">{result.sortedUnique}</pre>
                 </div>
               </div>

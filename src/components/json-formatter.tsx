@@ -6,21 +6,45 @@ import { formatJsonInput, JsonFormatResult } from "@/lib/json-tools";
 const VALID_EXAMPLE = '{"name":"Made by AI","items":[1,true,null]}';
 const INVALID_EXAMPLE = '{"name":}';
 
+type CopyStatus = "idle" | "copied" | "error";
+
 export function JsonFormatter() {
   const [input, setInput] = useState(VALID_EXAMPLE);
   const [result, setResult] = useState<JsonFormatResult | null>(null);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
 
   function handleFormat() {
+    setCopyStatus("idle");
     setResult(formatJsonInput(input));
   }
 
   function handleValidate() {
+    setCopyStatus("idle");
     setResult(formatJsonInput(input));
   }
 
   function handleClear() {
     setInput("");
     setResult(null);
+    setCopyStatus("idle");
+  }
+
+  async function handleCopy() {
+    if (!result?.ok) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus("error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(result.formatted);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
   }
 
   return (
@@ -67,14 +91,25 @@ export function JsonFormatter() {
                   <strong>{result.lineCount}</strong>
                   <span>줄 수</span>
                 </div>
-                <div className="kpi">
-                  <strong>{result.characterCount}</strong>
-                  <span>문자 수</span>
-                </div>
-              </div>
-              <pre className="json-formatter-output">{result.formatted}</pre>
-            </>
-          ) : (
+               <div className="kpi">
+                 <strong>{result.characterCount}</strong>
+                 <span>문자 수</span>
+               </div>
+               </div>
+               <div className="json-formatter-actions">
+                 <button className="bookmark-submit" type="button" onClick={handleCopy}>
+                   결과 복사
+                 </button>
+               </div>
+               {copyStatus === "copied" ? (
+                 <p className="section-desc">포맷된 JSON을 클립보드에 복사했습니다.</p>
+               ) : null}
+               {copyStatus === "error" ? (
+                 <p className="section-desc">이 브라우저에서는 결과를 복사할 수 없습니다.</p>
+               ) : null}
+               <pre className="json-formatter-output">{result.formatted}</pre>
+             </>
+           ) : (
             <>
               <h3>유효하지 않은 JSON</h3>
               <p>{result.error}</p>

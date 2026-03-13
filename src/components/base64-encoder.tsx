@@ -8,9 +8,46 @@ const DECODE_EXAMPLE = "TWFkZSBieSBBSQ==";
 const INVALID_EXAMPLE = "%%%";
 const UTF8_EXAMPLE = "허브 테스트";
 
+type CopyStatus = "idle" | "copied" | "error";
+
 export function Base64Encoder() {
   const [input, setInput] = useState(ENCODE_EXAMPLE);
   const [result, setResult] = useState<Base64ToolResult | null>(null);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
+
+  function handleEncode() {
+    setCopyStatus("idle");
+    setResult(encodeBase64Input(input));
+  }
+
+  function handleDecode() {
+    setCopyStatus("idle");
+    setResult(decodeBase64Input(input));
+  }
+
+  function handleClear() {
+    setInput("");
+    setResult(null);
+    setCopyStatus("idle");
+  }
+
+  async function handleCopy() {
+    if (!result?.ok) {
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus("error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(result.output);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
+  }
 
   return (
     <section className="panel">
@@ -23,20 +60,13 @@ export function Base64Encoder() {
       />
 
       <div className="json-formatter-actions">
-        <button className="bookmark-submit" type="button" onClick={() => setResult(encodeBase64Input(input))}>
+        <button className="bookmark-submit" type="button" onClick={handleEncode}>
           인코딩
         </button>
-        <button className="bookmark-submit" type="button" onClick={() => setResult(decodeBase64Input(input))}>
+        <button className="bookmark-submit" type="button" onClick={handleDecode}>
           디코딩
         </button>
-        <button
-          className="bookmark-remove"
-          type="button"
-          onClick={() => {
-            setInput("");
-            setResult(null);
-          }}
-        >
+        <button className="bookmark-remove" type="button" onClick={handleClear}>
           지우기
         </button>
       </div>
@@ -70,6 +100,19 @@ export function Base64Encoder() {
                   <span>출력 길이</span>
                 </div>
               </div>
+              <div className="json-formatter-actions">
+                <button className="bookmark-submit" type="button" onClick={handleCopy}>
+                  결과 복사
+                </button>
+              </div>
+              {copyStatus === "copied" ? (
+                <p className="section-desc">
+                  {result.action === "encode" ? "인코딩 결과를 클립보드에 복사했습니다." : "디코딩 결과를 클립보드에 복사했습니다."}
+                </p>
+              ) : null}
+              {copyStatus === "error" ? (
+                <p className="section-desc">이 브라우저에서는 결과를 복사할 수 없습니다.</p>
+              ) : null}
               <pre className="json-formatter-output">{result.output}</pre>
             </>
           ) : (
