@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { getCategories, getVisibleServices } from "@/lib/service-registry";
-import { getHomeQuickStartBundles, getRecentUpdatedServices } from "@/lib/home-discovery";
+import { getHomeFamilyBundles, getHomeQuickStartBundles, getRecentUpdatedServices } from "@/lib/home-discovery";
+import { PinnedServices } from "@/components/pinned-services";
+import { RecentlyUsedServices } from "@/components/recently-used-services";
 
 export default function HomePage() {
   const services = getVisibleServices();
   const categories = getCategories();
   const quickStartBundles = getHomeQuickStartBundles(services);
+  const familyBundles = getHomeFamilyBundles(services);
   const recentUpdates = getRecentUpdatedServices(services);
 
   return (
@@ -56,6 +59,42 @@ export default function HomePage() {
             <section className="home-quick-start-card" key={bundle.key}>
               <div className="badge-row">
                 <span className="badge active">빠른 시작</span>
+              </div>
+              <h3>{bundle.title}</h3>
+              <p>{bundle.description}</p>
+              <div className="home-quick-start-links">
+                {bundle.services.map((service) => (
+                  <Link className="hint-chip" key={service.key} href={service.route}>
+                    {service.title}
+                  </Link>
+                ))}
+              </div>
+              <Link className="back-link home-quick-start-query" href={`/services/search?q=${encodeURIComponent(bundle.query)}`}>
+                이 묶음으로 다시 찾기
+              </Link>
+            </section>
+          ))}
+        </div>
+      </section>
+
+      <PinnedServices services={services} />
+
+      <RecentlyUsedServices services={services} />
+
+      <section className="panel home-tool-families">
+        <div className="home-guided-header">
+          <div>
+            <h2 className="section-title home-guided-title">도구 묶음으로 찾기</h2>
+            <p className="section-desc">카테고리보다 더 구체적인 작업 맥락으로 관련 서비스를 다시 찾을 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div className="home-quick-start-grid">
+          {familyBundles.map((bundle) => (
+            <section className="home-quick-start-card" key={bundle.family}>
+              <div className="badge-row">
+                <span className="badge active">도구 묶음</span>
+                <span className="badge">{bundle.count}개</span>
               </div>
               <h3>{bundle.title}</h3>
               <p>{bundle.description}</p>

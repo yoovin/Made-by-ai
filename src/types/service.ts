@@ -9,6 +9,7 @@ export type ServiceEntry = {
   exposure: "card" | "button" | "link";
   status: ServiceStatus;
   category: string;
+  family: string;
   route: string;
   tags: string[];
   updatedAt: string;

@@ -1,11 +1,20 @@
 import { ServiceEntry } from "@/types/service";
-import { getRecommendationBundles } from "@/lib/search-discovery";
+import { getFamilySummaries, getRecommendationBundles } from "@/lib/search-discovery";
 
 export type HomeQuickStartBundle = {
   key: string;
   title: string;
   description: string;
   query: string;
+  services: ServiceEntry[];
+};
+
+export type HomeFamilyBundle = {
+  family: string;
+  title: string;
+  description: string;
+  query: string;
+  count: number;
   services: ServiceEntry[];
 };
 
@@ -17,6 +26,10 @@ export function getHomeQuickStartBundles(services: ServiceEntry[]): HomeQuickSta
     query: bundle.query,
     services: bundle.services,
   }));
+}
+
+export function getHomeFamilyBundles(services: ServiceEntry[], limit = 4): HomeFamilyBundle[] {
+  return getFamilySummaries(services, "").slice(0, limit);
 }
 
 function getStatusRank(status: ServiceEntry["status"]) {

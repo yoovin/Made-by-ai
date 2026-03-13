@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getVisibleServices } from "@/lib/service-registry";
-import { getCategorySummaries, getRecommendationBundles, getTagSummaries } from "@/lib/search-discovery";
+import { getCategorySummaries, getFamilySummaries, getRecommendationBundles, getTagSummaries } from "@/lib/search-discovery";
 
 type Props = {
   searchParams: Promise<{ q?: string }>;
@@ -11,6 +11,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const query = q.trim().toLowerCase();
   const services = getVisibleServices().filter((service) => service.slug !== "search");
   const categorySummaries = getCategorySummaries(services);
+  const familySummaries = getFamilySummaries(services, query);
   const tagSummaries = getTagSummaries(services);
   const recommendationBundles = getRecommendationBundles(services, query);
   const results = query
@@ -82,6 +83,32 @@ export default async function SearchPage({ searchParams }: Props) {
                   ))}
                 </div>
                 <Link className="back-link search-bundle-query" href={`/services/search?q=${encodeURIComponent(bundle.query)}`}>
+                  이 묶음으로 다시 찾기
+                </Link>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        <div className="hint-group">
+          <p className="hint-label">도구 묶음으로 둘러보기</p>
+          <div className="search-bundle-grid">
+            {familySummaries.map((family) => (
+              <section className="search-bundle-card" key={family.family}>
+                <div className="badge-row">
+                  <span className="badge active">도구 묶음</span>
+                  <span className="badge">{family.count}개</span>
+                </div>
+                <h3>{family.title}</h3>
+                <p>{family.description}</p>
+                <div className="search-bundle-links">
+                  {family.services.map((service) => (
+                    <Link className="hint-chip" key={service.key} href={service.route}>
+                      {service.title}
+                    </Link>
+                  ))}
+                </div>
+                <Link className="back-link search-bundle-query" href={`/services/search?q=${encodeURIComponent(family.query)}`}>
                   이 묶음으로 다시 찾기
                 </Link>
               </section>
