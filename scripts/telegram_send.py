@@ -7,14 +7,29 @@ import urllib.request
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
+SUPPRESSED_PATTERNS = (
+    "세션이 현재 유휴 상태입니다.",
+    "새 개발 세션 시작",
+    "session.idle",
+    "session.created",
+)
+
 
 def normalize_text(text: str) -> str:
     return text.replace("\\n", "\n")
 
 
+def should_suppress_message(text: str) -> bool:
+    normalized = normalize_text(text)
+    return any(pattern in normalized for pattern in SUPPRESSED_PATTERNS)
+
+
 def send_message(text: str) -> int:
     if not BOT_TOKEN or not CHAT_ID:
         print("Telegram env not configured; skipping message.", file=sys.stderr)
+        return 0
+
+    if should_suppress_message(text):
         return 0
 
     payload = {
